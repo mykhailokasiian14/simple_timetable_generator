@@ -13,10 +13,12 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @PlanningId
+    @EqualsAndHashCode.Include
     private Long lessonId;
 
     @ManyToOne
