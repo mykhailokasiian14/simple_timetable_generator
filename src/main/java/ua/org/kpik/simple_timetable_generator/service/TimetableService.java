@@ -1,6 +1,8 @@
 package ua.org.kpik.simple_timetable_generator.service;
 
 import ai.timefold.solver.core.api.solver.SolverManager;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ua.org.kpik.simple_timetable_generator.entity.Lesson;
 import ua.org.kpik.simple_timetable_generator.entity.TeachingLoad;
@@ -11,12 +13,14 @@ import ua.org.kpik.simple_timetable_generator.solver.Timetable;
 
 import java.util.List;
 
+@Service
+@RequiredArgsConstructor
 public class TimetableService {
-    private  TeachingLoadRepository loadRepository;
-    private  LessonRepository lessonRepository;
-    private  AuditoryRepository auditoryRepository;
+    private final TeachingLoadRepository loadRepository;
+    private final LessonRepository lessonRepository;
+    private final AuditoryRepository auditoryRepository;
 
-    private SolverManager<Timetable, Long> solverManager;
+    private final SolverManager<Timetable, Long> solverManager;
 
     @Transactional
     public void generateEmptyLessons() {
@@ -40,11 +44,8 @@ public class TimetableService {
         Timetable problem = new Timetable();
 
         problem.setAuditories(auditoryRepository.findAll());
-
         problem.setDayOfWeeks(List.of(1, 2, 3, 4, 5));
-
         problem.setLessonNumbers(List.of(1, 2, 3, 4));
-
         problem.setLessons(lessonRepository.findAll());
 
         return problem;
