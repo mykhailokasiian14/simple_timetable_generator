@@ -1,17 +1,24 @@
 package ua.org.kpik.simple_timetable_generator.entity;
 
+import ai.timefold.solver.core.api.domain.entity.PlanningEntity;
+import ai.timefold.solver.core.api.domain.lookup.PlanningId;
+import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
 @Table(name = "lessons")
+@PlanningEntity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class Lesson {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @PlanningId
+    @EqualsAndHashCode.Include
     private Long lessonId;
 
     @ManyToOne
@@ -28,8 +35,12 @@ public class Lesson {
 
     @ManyToOne
     @JoinColumn(name = "auditory_id")
+    @PlanningVariable(valueRangeProviderRefs = "auditoryRange")
     private Auditory auditory;
 
+    @PlanningVariable(valueRangeProviderRefs = "dayOfWeekRange")
     private Integer dayOfWeek;
+
+    @PlanningVariable(valueRangeProviderRefs = "lessonNumberRange")
     private Integer lessonNumber;
 }
