@@ -19,6 +19,7 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 noConsecutiveSameSubject(constraintFactory),
                 teacherRoomSharingPenalty(constraintFactory),
                 noGapsBetweenLessons(constraintFactory),
+                shortFriday(constraintFactory),
         };
     }
 
@@ -111,5 +112,17 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .penalize(HardSoftScore.ofSoft(2),
                         (l1, l2) -> l2.getLessonNumber() - l1.getLessonNumber() - 1)
                 .asConstraint("No gaps between lessons!");
+    }
+
+    private Constraint shortFriday(ConstraintFactory constraintFactory) {
+        return constraintFactory
+                .forEach(Lesson.class)
+                // Відбираємо тільки ті пари, які алгоритм намагається поставити в п'ятницю
+                .filter(lesson -> lesson.getDayOfWeek() == 5)
+                // Знаходимо нахабні пари, які лізуть на 4-й або більший номер
+                .filter(lesson -> lesson.getLessonNumber() > 3)
+                // ЖОРСТКО б'ємо по руках! Розклад з 4-ю парою в п'ятницю - недійсний
+                .penalize(HardSoftScore.ONE_SOFT)
+                .asConstraint("max 3 lessons on friday!");
     }
 }
