@@ -29,7 +29,8 @@ public class TimetableService {
         List<TeachingLoad> loads = loadRepository.findAll();
 
         for (TeachingLoad load : loads) {
-            for (int i = 0; i < load.getHoursPerWeek(); i++) {
+            int lessonsPerWeek = load.getHoursPerWeek()/2;
+            for (int i = 0; i < lessonsPerWeek; i++) {
                 Lesson lesson = new Lesson();
                 lesson.setTeacher(load.getTeacher());
                 lesson.setGroup(load.getGroup());
