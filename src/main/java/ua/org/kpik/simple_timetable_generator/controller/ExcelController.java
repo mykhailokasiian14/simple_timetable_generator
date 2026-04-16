@@ -24,7 +24,7 @@ public class ExcelController {
 
     @GetMapping("/download-split-timetable")
     public ResponseEntity<byte[]> downloadTimetable() {
-        byte[] fileContent = excelService.exportTimetableToExcel();
+        byte[] fileContent = excelService.exportSplitTimetableToExcel();
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=groups_timetable.xlsx")

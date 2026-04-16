@@ -86,7 +86,7 @@ public class ExcelService {
         }
     }
 
-    public byte[] exportTimetableToExcel() {
+    public byte[] exportSplitTimetableToExcel() {
         List<Lesson> lessons = lessonRepository.findAll();
 
         try (Workbook workbook = new XSSFWorkbook();
