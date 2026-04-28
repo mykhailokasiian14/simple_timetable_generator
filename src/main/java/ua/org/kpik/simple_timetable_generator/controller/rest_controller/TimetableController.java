@@ -1,11 +1,10 @@
-package ua.org.kpik.simple_timetable_generator.controller;
+package ua.org.kpik.simple_timetable_generator.controller.rest_controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import ua.org.kpik.simple_timetable_generator.entity.Lesson;
 import ua.org.kpik.simple_timetable_generator.repository.LessonRepository;
 import ua.org.kpik.simple_timetable_generator.service.TimetableService;
-import ua.org.kpik.simple_timetable_generator.solver.Timetable;
 
 import java.util.Comparator;
 import java.util.*;
