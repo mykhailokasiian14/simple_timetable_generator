@@ -14,10 +14,10 @@ public class AccessController {
     private final AccessService accessService;
 
     @PostMapping("/upload")
-    public String upload(@RequestParam("file") MultipartFile file) {
+    public String upload(@RequestParam("file") MultipartFile file, @RequestParam("semester") int semester) {
         if (file.isEmpty()) {
             return "File is empty";
         }
-        return accessService.parseAndSaveAccess(file);
+        return accessService.parseAccess(file, semester);
     }
 }
