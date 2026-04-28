@@ -1,4 +1,4 @@
-package ua.org.kpik.simple_timetable_generator.controller;
+package ua.org.kpik.simple_timetable_generator.controller.rest_controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.PostMapping;
