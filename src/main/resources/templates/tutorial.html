@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Як користуватися - STG kpik</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="icon" type="image/png" th:href="@{/stg_logo.png}">
+</head>
+<body class="bg-gradient-to-br from-blue-200 via-blue-400 to-blue-600 min-h-screen flex flex-col font-sans p-4">
+
+<header class="w-full flex items-center justify-between px-6 py-4">
+    <a href="/" class="flex items-center gap-4 hover:opacity-80 transition-opacity cursor-pointer">
+        <img th:src="@{/stg_logo.png}" alt="STG Logo" class="w-14 h-14 object-contain rounded-xl shadow-sm">
+        <h1 class="text-2xl font-extrabold text-black tracking-tight select-none">Simple Timetable Generator.kpik</h1>
+    </a>
+    <nav class="hidden md:flex gap-8 font-medium text-gray-900 mr-4">
+        <a href="/tutorial" class="text-blue-900 font-bold transition">Як Користуватися</a>
+        <a href="/about" class="hover:text-blue-900 transition">Про Застосунок</a>
+    </nav>
+</header>
+
+<main class="flex-1 w-full flex items-center justify-center p-6">
+    <div class="bg-white p-10 rounded-3xl shadow-2xl w-full max-w-4xl">
+
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold text-gray-900">Як це працює?</h1>
+            <p class="text-lg text-gray-500 mt-3">Створити ідеальний розклад можна всього за 4 прості кроки.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                <h3 class="text-xl font-bold text-gray-900 mb-2">1. Підготовка даних</h3>
+                <p class="text-gray-600">Переконайтеся, що ваше навчальне навантаження збережене у форматі Excel (.xlsx) або MS Access (.accdb). Перевірте правильність написання предметів та груп.</p>
+            </div>
+            <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                <h3 class="text-xl font-bold text-gray-900 mb-2">2. Завантаження</h3>
+                <p class="text-gray-600">Натисніть "Почати створення", оберіть тип вашого файлу та завантажте його в систему. Усі дані будуть автоматично імпортовані в базу даних.</p>
+            </div>
+            <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                <h3 class="text-xl font-bold text-gray-900 mb-2">3. Магія ШІ</h3>
+                <p class="text-gray-600">Запустіть генерацію. Алгоритм Timefold обробить тисячі комбінацій, щоб розставити пари без "вікон", накладок аудиторій та викладачів.</p>
+            </div>
+            <div class="bg-blue-50 p-6 rounded-2xl border border-blue-100">
+                <h3 class="text-xl font-bold text-gray-900 mb-2">4. Експорт</h3>
+                <p class="text-gray-600">Отримайте готовий результат! Ви можете завантажити розклад по окремих групах або загальний зведений аркуш у зручному форматі Excel.</p>
+            </div>
+        </div>
+
+        <div class="mt-10 text-center">
+            <a href="/upload" class="inline-flex items-center justify-center px-8 py-4 bg-blue-600 hover:bg-blue-700 text-white font-bold rounded-xl transition shadow-lg">
+                Спробувати зараз 🚀
+            </a>
+        </div>
+
+    </div>
+</main>
+</body>
+</html>

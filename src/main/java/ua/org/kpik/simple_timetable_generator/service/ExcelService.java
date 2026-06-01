@@ -44,6 +44,10 @@ public class ExcelService {
                 String groupName = row.getCell(0).getStringCellValue().trim();
                 String subjectName = row.getCell(1).getStringCellValue().trim();
                 String teacherName = row.getCell(2).getStringCellValue().trim();
+
+                if (teacherName == null || teacherName.trim().isEmpty() || teacherName.contains("Всього годин")) {
+                    continue;
+                }
                 int hours = (int) row.getCell(3).getNumericCellValue();
 
                 Group group = groupRepository.findByGroupName(groupName)

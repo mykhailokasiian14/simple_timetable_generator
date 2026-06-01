@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="uk" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Генерація...</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <link rel="icon" type="image/png" th:href="@{/stg_logo.png}">
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+</head>
+
+<body class="bg-gradient-to-br from-blue-200 via-blue-400 to-blue-600 min-h-screen flex flex-col font-sans p-4">
+<header class="w-full flex items-center justify-between px-6 py-4">
+    <a href="/" class="flex items-center gap-4 hover:opacity-80 transition-opacity cursor-pointer">
+        <img th:src="@{/stg_logo.png}" alt="STG Logo" class="w-14 h-14 object-contain rounded-xl shadow-sm">
+        <h1 class="text-2xl font-extrabold text-black tracking-tight select-none">Simple Timetable Generator.kpik</h1>
+    </a>
+
+    <nav class="hidden md:flex gap-8 font-medium text-gray-900 mr-4">
+        <a href="/tutorial" class="hover:text-blue-600 transition">Як Користуватися</a>
+        <a href="/about" class="hover:text-blue-600 transition">Про Застосунок</a>
+    </nav>
+</header>
+<main class="flex-1 w-full flex items-center justify-center p-6">
+    <div class="bg-blue-100 p-10 rounded-2xl shadow-2xl w-full max-w-lg text-center border border-blue-200">
+
+        <div class="mb-8">
+            <h1 class="text-2xl font-extrabold text-gray-950 tracking-tight">Запуск генерації розкладу</h1>
+            <p class="text-sm text-gray-500 mt-3 px-2">Вхідні дані успішно оброблені. Алгоритм готовий збудувати
+                розклад.</p>
+        </div>
+
+        <form action="/run-generation" method="POST" x-data="{ isGenerating: false }" @submit="isGenerating = true">
+
+            <button type="submit"
+                    class="w-full h-14 flex items-center justify-center font-bold text-base rounded-xl transition-all duration-300 shadow-md text-white"
+                    :class="isGenerating ? 'bg-blue-400 cursor-not-allowed animate-pulse' : 'bg-blue-600 hover:bg-blue-700'"
+                    :disabled="isGenerating">
+
+                <span x-show="!isGenerating" class="flex items-center gap-2">
+                    Запустити генерацію розкладу
+                </span>
+
+                <span x-show="isGenerating" class="flex items-center gap-3" x-cloak>
+                    <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none"
+                         viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"
+                                stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor"
+                              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Нейромережа шукає найкраще рішення...
+                </span>
+
+            </button>
+        </form>
+
+    </div>
+</main>
+</body>
+</html>
