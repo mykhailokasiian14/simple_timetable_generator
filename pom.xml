@@ -91,7 +91,7 @@
 	</dependencies>
 
 	<build>
-		<finalName>Simple Timetable Generator</finalName>
+		<finalName>SimpleTimetableGenerator</finalName>
 		<plugins>
 			<plugin>
 				<groupId>com.github.eirslett</groupId>
