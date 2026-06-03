@@ -105,7 +105,9 @@ public class ExcelService {
                             l -> l.getGroup().getGroupName(),
                             Collectors.groupingBy(
                                     Lesson::getDayOfWeek,
-                                    Collectors.toMap(Lesson::getLessonNumber, l -> l)
+                                    Collectors.toMap(Lesson::getLessonNumber, l -> l,
+                                            (existing, replacement) -> existing
+                                    )
                             )
                     ));
 
@@ -224,6 +226,8 @@ public class ExcelService {
                         int d = day; int n = num;
                         lessons.stream()
                                 .filter(l -> l.getGroup().getId().equals(group.getId())
+                                        && l.getDayOfWeek() != null
+                                        && l.getLessonNumber() != null
                                         && l.getDayOfWeek() == d
                                         && l.getLessonNumber() == n)
                                 .findFirst()
