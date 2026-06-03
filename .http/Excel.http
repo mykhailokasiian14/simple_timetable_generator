@@ -1,0 +1,9 @@
+### Import load file
+POST http://localhost:8080/api/excel/upload
+
+
+### Download timetable split by groups
+GET http://localhost:8080/api/excel/download-split-timetable
+
+### Download total timetable
+GET http://localhost:8080/api/excel/download-total-timetable

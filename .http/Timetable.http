@@ -1,7 +1,6 @@
 ### Generate new timetable
 POST http://localhost:8080/api/timetable/generate
 
-
 ### Get recent timetable
 GET http://localhost:8080/api/timetable
 
