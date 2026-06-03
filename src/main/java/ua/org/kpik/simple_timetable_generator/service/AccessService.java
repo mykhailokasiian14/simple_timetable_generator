@@ -31,10 +31,10 @@ public class AccessService {
         try{
             tempFile = File.createTempFile("uploaded_access_file", ".accdb");
             file.transferTo(tempFile);
-
-            String dbURL = "jdbc:ucanaccess://" + tempFile.getAbsolutePath();
+            String safePath = tempFile.getAbsolutePath().replace("\\", "/");
+            String dbURL = "jdbc:ucanaccess://" + safePath;
             int rowsAdded = 0;
-            String rightSemHoursColumn = (semester == 1) ? "[sem1]" : "[sem2]";
+            String rightSemHoursColumn = (semester == 1) ? "[1sem]" : "[2sem]";
 
             /* УВАГА! ТУТ ЗМІННІ НАЗВИ З БАЗИ ACCESS:
              * 1. "MainTable" -> на назву таблиці зі скріна (де лежать NomDysc, 1sem, 2sem).
@@ -42,16 +42,16 @@ public class AccessService {
              * 3. "g.Name", "s.Name", "t.Name" -> на реальні назви колонок з текстом.
              */
             String sql = "SELECT " +
-                    "g.Name AS GroupName, " +
-                    "s.Name AS SubjectName, " +
-                    "t.Name AS TeacherName, " +
+                    "g.KodGr AS GroupName, " +
+                    "s.NazvaDysc AS SubjectName, " +
+                    "t.Prizv AS TeacherName, " +
                     "l." + rightSemHoursColumn + " AS ActiveHours " +
-                    "FROM MainTable l " +
-                    "JOIN GroupsTable g ON l.Grupa = g.ID " +
-                    "JOIN SubjectsTable s ON l.Dysc = s.ID " +
-                    "JOIN TeachersTable t ON l.Vykladach = t.ID";
+                    "FROM РозподілГодин l " +
+                    "JOIN Групи g ON l.Grupa = g.NomGr " +
+                    "JOIN Дисципліни s ON l.Dysc = s.NomDysc " +
+                    "JOIN Викладачі t ON l.Vykladach = t.NomVykl";
 
-            try (Connection conn = DriverManager.getConnection("jdbc:ucanaccess://" + dbURL);
+            try (Connection conn = DriverManager.getConnection(dbURL);
                  Statement stmt = conn.createStatement();
                  ResultSet rs = stmt.executeQuery(sql)) {
 
