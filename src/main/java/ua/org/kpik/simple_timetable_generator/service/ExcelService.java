@@ -48,7 +48,7 @@ public class ExcelService {
                 if (teacherName == null || teacherName.trim().isEmpty() || teacherName.contains("Всього годин")) {
                     continue;
                 }
-                int hours = (int) row.getCell(3).getNumericCellValue();
+                double hours =  row.getCell(3).getNumericCellValue();
 
                 Group group = groupRepository.findByGroupName(groupName)
                         .orElseGet(() -> {
