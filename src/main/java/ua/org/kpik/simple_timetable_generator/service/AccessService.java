@@ -97,7 +97,7 @@ public class AccessService {
                     load.setGroup(group);
                     load.setSubject(subject);
                     load.setTeacher(teacher);
-                    load.setHoursPerWeek(hours);
+                    load.setLessonsPerWeek(hours);
                     teachingLoadRepository.save(load);
 
                     rowsAdded++;

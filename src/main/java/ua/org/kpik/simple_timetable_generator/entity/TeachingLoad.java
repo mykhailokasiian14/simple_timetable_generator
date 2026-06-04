@@ -28,5 +28,5 @@ public class TeachingLoad {
     @JoinColumn(name = "group_id")
     private Group group;
 
-    private  Integer hoursPerWeek;
+    private  Integer lessonsPerWeek;
 }
