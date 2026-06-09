@@ -37,11 +37,7 @@ public class AccessService {
             String rightSemHoursColumn = (semester == 1) ? "[1sem]" : "[2sem]";
             int semesterWeeks = (semester == 1) ? 15 : 22;
 
-            /* УВАГА! ТУТ ЗМІННІ НАЗВИ З БАЗИ ACCESS:
-             * 1. "MainTable" -> на назву таблиці зі скріна (де лежать NomDysc, 1sem, 2sem).
-             * 2. "GroupsTable", "SubjectsTable", "TeachersTable" -> на їхні реальні назви.
-             * 3. "g.Name", "s.Name", "t.Name" -> на реальні назви колонок з текстом.
-             */
+            /*  Here are the editable fields from the Access database:*/
             String sql = "SELECT " +
                     "g.KodGr AS GroupName, " +
                     "s.NazvaDysc AS SubjectName, " +
