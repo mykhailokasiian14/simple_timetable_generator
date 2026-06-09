@@ -7,6 +7,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import ua.org.kpik.simple_timetable_generator.enaum.LessonWeekType;
 import ua.org.kpik.simple_timetable_generator.entity.*;
 import ua.org.kpik.simple_timetable_generator.repository.GroupRepository;
 import ua.org.kpik.simple_timetable_generator.repository.SubjectRepository;
@@ -29,7 +30,7 @@ public class ExcelService {
     private final LessonRepository lessonRepository;
 
     @Transactional
-    public String parseAndSaveExcel(MultipartFile file) {
+    public String parseAndSaveExcel(MultipartFile file) { // todo semester 1 2 input like in AccessService
         try (InputStream inputStream = file.getInputStream();
              Workbook workbook = new XSSFWorkbook(inputStream)) {
 
@@ -204,43 +205,66 @@ public class ExcelService {
 
             for (int day = 1; day <= 5; day++) {
                 int dayStartRow = currentRowIdx;
+
                 for (int num = 1; num <= 4; num++) {
-                    Row row = sheet.createRow(currentRowIdx++);
-                    row.setHeightInPoints(50);
+                    int lessonStartRow = currentRowIdx;
 
-                    // day and num. lesson columns
-                    Cell dayCell = row.createCell(0);
-                    if (num == 1) dayCell.setCellValue(dayNames[day]);
-                    dayCell.setCellStyle(styles.get("lesson"));
+                    Row rowTop = sheet.createRow(currentRowIdx++);
+                    Row rowBottom = sheet.createRow(currentRowIdx++);
 
-                    Cell numCell = row.createCell(1);
-                    numCell.setCellValue(num);
-                    numCell.setCellStyle(styles.get("lesson"));
+                    rowTop.setHeightInPoints(25);
+                    rowBottom.setHeightInPoints(25);
 
-                    // filling data
+                    Cell dayCellTop = rowTop.createCell(0);
+                    if (num == 1) dayCellTop.setCellValue(dayNames[day]);
+                    dayCellTop.setCellStyle(styles.get("lesson"));
+                    rowBottom.createCell(0).setCellStyle(styles.get("lesson"));
+
+                    Cell numCellTop = rowTop.createCell(1);
+                    numCellTop.setCellValue(num);
+                    numCellTop.setCellStyle(styles.get("lesson"));
+                    rowBottom.createCell(1).setCellStyle(styles.get("lesson"));
+
+                    sheet.addMergedRegion(new CellRangeAddress(lessonStartRow, lessonStartRow + 1, 1, 1));
+
                     for (int gIdx = 0; gIdx < groups.size(); gIdx++) {
                         Group group = groups.get(gIdx);
-                        Cell cell = row.createCell(gIdx + 2);
-                        cell.setCellStyle(styles.get("lesson"));
+                        int colIdx = gIdx + 2;
 
-                        int d = day; int n = num;
-                        lessons.stream()
+                        Cell cellTop = rowTop.createCell(colIdx);
+                        Cell cellBottom = rowBottom.createCell(colIdx);
+
+                        cellTop.setCellStyle(styles.get("lesson"));
+                        cellBottom.setCellStyle(styles.get("lesson"));
+
+                        int d = day;
+                        int n = num;
+
+                        List<Lesson> currentLessons = lessons.stream()
                                 .filter(l -> l.getGroup().getId().equals(group.getId())
-                                        && l.getDayOfWeek() != null
-                                        && l.getLessonNumber() != null
                                         && l.getDayOfWeek() == d
                                         && l.getLessonNumber() == n)
-                                .findFirst()
-                                .ifPresent(l -> {
-                                    String text = String.format("%s\n%s\nауд. %s",
-                                            l.getSubject().getSubjectName(),
-                                            l.getTeacher().getLastName(),
-                                            l.getAuditory() != null ? l.getAuditory().getRoomNumber() : "?");
-                                    cell.setCellValue(text);
-                                });
+                                .toList();
+
+                        Lesson everyWeek = currentLessons.stream().filter(l -> l.getLessonWeekType() == LessonWeekType.EVERY_WEEK).findFirst().orElse(null);
+                        Lesson numerator = currentLessons.stream().filter(l -> l.getLessonWeekType() == LessonWeekType.NUMERATOR).findFirst().orElse(null);
+                        Lesson denominator = currentLessons.stream().filter(l -> l.getLessonWeekType() == LessonWeekType.DENOMINATOR).findFirst().orElse(null);
+
+                        if (everyWeek != null) {
+                            String text = formatLessonText(everyWeek);
+                            cellTop.setCellValue(text);
+                            sheet.addMergedRegion(new CellRangeAddress(lessonStartRow, lessonStartRow + 1, colIdx, colIdx));
+                        } else {
+                            if (numerator != null) {
+                                cellTop.setCellValue(formatLessonText(numerator));
+                            }
+                            if (denominator != null) {
+                                cellBottom.setCellValue(formatLessonText(denominator));
+                            }
+                        }
                     }
                 }
-                sheet.addMergedRegion(new CellRangeAddress(dayStartRow, dayStartRow + 3, 0, 0));
+                sheet.addMergedRegion(new CellRangeAddress(dayStartRow, currentRowIdx - 1, 0, 0));
             }
             workbook.write(out);
             return out.toByteArray();
@@ -295,5 +319,12 @@ public class ExcelService {
         style.setBorderTop(BorderStyle.THIN);
         style.setBorderRight(BorderStyle.THIN);
         style.setBorderLeft(BorderStyle.THIN);
+    }
+
+    private String formatLessonText(Lesson l) {
+        return String.format("%s\n%s\nауд. %s",
+                l.getSubject().getSubjectName(),
+                l.getTeacher().getLastName(),
+                l.getAuditory() != null ? l.getAuditory().getRoomNumber() : "?");
     }
 }
