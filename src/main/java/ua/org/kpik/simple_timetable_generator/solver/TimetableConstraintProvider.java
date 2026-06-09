@@ -5,6 +5,7 @@ import ai.timefold.solver.core.api.score.stream.Constraint;
 import ai.timefold.solver.core.api.score.stream.ConstraintFactory;
 import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.score.stream.Joiners;
+import ua.org.kpik.simple_timetable_generator.enaum.LessonWeekType;
 import ua.org.kpik.simple_timetable_generator.entity.Lesson;
 
 public class TimetableConstraintProvider implements ConstraintProvider {
@@ -29,6 +30,18 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                         Joiners.equal(Lesson::getTeacher),
                         Joiners.equal(Lesson::getDayOfWeek),
                         Joiners.equal(Lesson::getLessonNumber))
+                .filter((lesson1, lesson2) -> {
+                    // Якщо хоча б одна з пар йде ЩОТИЖНЯ - це конфлікт накладки
+                    if (lesson1.getLessonWeekType() == LessonWeekType.EVERY_WEEK || lesson2.getLessonWeekType() == LessonWeekType.EVERY_WEEK) {
+                        return true;
+                    }
+                    // Якщо обидві пари на одному тижні (обидві чисельник або обидві знаменник) - це конфлікт
+                    if (lesson1.getLessonWeekType() == lesson2.getLessonWeekType()) {
+                        return true;
+                    }
+                    // Якщо одна чисельник, а інша знаменник - все чотко, пропускаємо!
+                    return false;
+                })
                 .penalize(HardSoftScore.ONE_HARD)
                 .asConstraint("Teacher conflict!");
     }
@@ -39,6 +52,18 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                         Joiners.equal(Lesson::getGroup),
                         Joiners.equal(Lesson::getDayOfWeek),
                         Joiners.equal(Lesson::getLessonNumber))
+                .filter((lesson1, lesson2) -> {
+                    // Якщо хоча б одна з пар йде ЩОТИЖНЯ - це конфлікт накладки
+                    if (lesson1.getLessonWeekType() == LessonWeekType.EVERY_WEEK || lesson2.getLessonWeekType() == LessonWeekType.EVERY_WEEK) {
+                        return true;
+                    }
+                    // Якщо обидві пари на одному тижні (обидві чисельник або обидві знаменник) - це конфлікт
+                    if (lesson1.getLessonWeekType() == lesson2.getLessonWeekType()) {
+                        return true;
+                    }
+                    // Якщо одна чисельник, а інша знаменник - все чотко, пропускаємо!
+                    return false;
+                })
                 .penalize(HardSoftScore.ONE_HARD)
                 .asConstraint("Group conflict!");
     }
@@ -49,6 +74,18 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                         Joiners.equal(Lesson::getAuditory),
                         Joiners.equal(Lesson::getDayOfWeek),
                         Joiners.equal(Lesson::getLessonNumber))
+                .filter((lesson1, lesson2) -> {
+                    // Якщо хоча б одна з пар йде ЩОТИЖНЯ - це конфлікт накладки
+                    if (lesson1.getLessonWeekType() == LessonWeekType.EVERY_WEEK || lesson2.getLessonWeekType() == LessonWeekType.EVERY_WEEK) {
+                        return true;
+                    }
+                    // Якщо обидві пари на одному тижні (обидві чисельник або обидві знаменник) - це конфлікт
+                    if (lesson1.getLessonWeekType() == lesson2.getLessonWeekType()) {
+                        return true;
+                    }
+                    // Якщо одна чисельник, а інша знаменник - все чотко, пропускаємо!
+                    return false;
+                })
                 .penalize(HardSoftScore.ONE_HARD)
                 .asConstraint("Auditory conflict!");
     }
