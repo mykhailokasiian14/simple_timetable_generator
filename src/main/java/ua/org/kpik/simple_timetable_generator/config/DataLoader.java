@@ -21,7 +21,7 @@ public class DataLoader implements CommandLineRunner {
             return;
         }
 
-        System.out.println("Завантажую ТЕСТОВІ ДАНІ для хардкорного розкладу...");
+        System.out.println("Завантажую дані про аудиторії...");
 
         Auditory a1 = new Auditory(); a1.setRoomNumber("1");
         Auditory a2 = new Auditory(); a2.setRoomNumber("2");
@@ -88,7 +88,7 @@ public class DataLoader implements CommandLineRunner {
                 a49, a50, a51, a52, a53, a54, a55, a56
         ));
 
-        System.out.println("ТЕСТОВІ ДАНІ ПРО АУДИТОРІЇ УСПІШНО ЗАВАНТАЖЕНО!");
+        System.out.println("АУДИТОРІЇ УСПІШНО ЗАВАНТАЖЕНО!");
         System.out.print("Переходіть за цим посиланням для початку роботи -> ");
         System.out.println("http://localhost:8080/");
     }
