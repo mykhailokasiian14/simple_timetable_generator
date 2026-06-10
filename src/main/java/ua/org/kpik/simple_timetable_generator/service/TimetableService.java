@@ -4,6 +4,7 @@ import ai.timefold.solver.core.api.solver.SolverManager;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ua.org.kpik.simple_timetable_generator.enaum.LessonWeekType;
 import ua.org.kpik.simple_timetable_generator.entity.Lesson;
 import ua.org.kpik.simple_timetable_generator.entity.TeachingLoad;
 import ua.org.kpik.simple_timetable_generator.repository.AuditoryRepository;
@@ -28,15 +29,40 @@ public class TimetableService {
 
         List<TeachingLoad> loads = loadRepository.findAll();
 
+        boolean isNumeratorNext = true;
+
         for (TeachingLoad load : loads) {
-            int lessonsPerWeek = load.getHoursPerWeek()/2;
-            for (int i = 0; i < lessonsPerWeek; i++) {
+            double lessonsPerWeek = load.getLessonsPerWeek();
+
+            int fullPairs = (int) lessonsPerWeek;
+
+            boolean hasHalfPair = (lessonsPerWeek % 1 != 0);
+
+            for (int i = 0; i < fullPairs; i++) {
                 Lesson lesson = new Lesson();
                 lesson.setTeacher(load.getTeacher());
                 lesson.setGroup(load.getGroup());
                 lesson.setSubject(load.getSubject());
+                lesson.setLessonWeekType(LessonWeekType.EVERY_WEEK);
 
                 lessonRepository.save(lesson);
+            }
+
+            if (hasHalfPair) {
+                Lesson halfLesson = new Lesson();
+                halfLesson.setTeacher(load.getTeacher());
+                halfLesson.setGroup(load.getGroup());
+                halfLesson.setSubject(load.getSubject());
+
+                if (isNumeratorNext) {
+                    halfLesson.setLessonWeekType(LessonWeekType.NUMERATOR);
+                } else {
+                    halfLesson.setLessonWeekType(LessonWeekType.DENOMINATOR);
+                }
+
+                isNumeratorNext = !isNumeratorNext;
+
+                lessonRepository.save(halfLesson);
             }
         }
     }

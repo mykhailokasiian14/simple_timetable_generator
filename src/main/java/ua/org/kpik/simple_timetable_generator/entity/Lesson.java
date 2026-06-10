@@ -5,6 +5,7 @@ import ai.timefold.solver.core.api.domain.lookup.PlanningId;
 import ai.timefold.solver.core.api.domain.variable.PlanningVariable;
 import jakarta.persistence.*;
 import lombok.*;
+import ua.org.kpik.simple_timetable_generator.enaum.LessonWeekType;
 
 @Entity
 @Table(name = "lessons")
@@ -43,4 +44,7 @@ public class Lesson {
 
     @PlanningVariable(valueRangeProviderRefs = "lessonNumberRange")
     private Integer lessonNumber;
+
+    @Enumerated(EnumType.STRING)
+    private LessonWeekType lessonWeekType = LessonWeekType.EVERY_WEEK;
 }

@@ -35,12 +35,9 @@ public class AccessService {
             String dbURL = "jdbc:ucanaccess://" + safePath;
             int rowsAdded = 0;
             String rightSemHoursColumn = (semester == 1) ? "[1sem]" : "[2sem]";
+            int semesterWeeks = (semester == 1) ? 15 : 22;
 
-            /* УВАГА! ТУТ ЗМІННІ НАЗВИ З БАЗИ ACCESS:
-             * 1. "MainTable" -> на назву таблиці зі скріна (де лежать NomDysc, 1sem, 2sem).
-             * 2. "GroupsTable", "SubjectsTable", "TeachersTable" -> на їхні реальні назви.
-             * 3. "g.Name", "s.Name", "t.Name" -> на реальні назви колонок з текстом.
-             */
+            /*  Here are the editable fields from the Access database:*/
             String sql = "SELECT " +
                     "g.KodGr AS GroupName, " +
                     "s.NazvaDysc AS SubjectName, " +
@@ -56,11 +53,12 @@ public class AccessService {
                  ResultSet rs = stmt.executeQuery(sql)) {
 
                 while (rs.next()) {
-                    int hours = rs.getInt("ActiveHours");
+                    int semesterHours = rs.getInt("ActiveHours");
 
-                    if (rs.wasNull() || hours <= 0) {
+                    if (rs.wasNull() || semesterHours <= 0) {
                         continue;
                     }
+                    double pairsPerWeek = (double) semesterHours / (semesterWeeks * 2);
 
                     String groupName = rs.getString("GroupName").trim();
                     String subjectName = rs.getString("SubjectName").trim();
@@ -97,7 +95,7 @@ public class AccessService {
                     load.setGroup(group);
                     load.setSubject(subject);
                     load.setTeacher(teacher);
-                    load.setHoursPerWeek(hours);
+                    load.setLessonsPerWeek(pairsPerWeek);
                     teachingLoadRepository.save(load);
 
                     rowsAdded++;
