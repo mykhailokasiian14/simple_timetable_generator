@@ -15,6 +15,8 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Service
@@ -24,6 +26,8 @@ public class AccessService {
     private final TeacherRepository teacherRepository;
     private final SubjectRepository subjectRepository;
     private final TeachingLoadRepository teachingLoadRepository;
+
+    private static final int DEFAULT_WEEKS_FALLBACK = 15;
 
     @Transactional
     public String parseAccess(MultipartFile file, int semester) {
@@ -35,73 +39,79 @@ public class AccessService {
             String dbURL = "jdbc:ucanaccess://" + safePath;
             int rowsAdded = 0;
             String rightSemHoursColumn = (semester == 1) ? "[1sem]" : "[2sem]";
-            int semesterWeeks = (semester == 1) ? 15 : 22;
 
-            /*  Here are the editable fields from the Access database:*/
-            String sql = "SELECT " +
-                    "g.KodGr AS GroupName, " +
-                    "s.NazvaDysc AS SubjectName, " +
-                    "t.Prizv AS TeacherName, " +
-                    "l." + rightSemHoursColumn + " AS ActiveHours " +
-                    "FROM РозподілГодин l " +
-                    "JOIN Групи g ON l.Grupa = g.NomGr " +
-                    "JOIN Дисципліни s ON l.Dysc = s.NomDysc " +
-                    "JOIN Викладачі t ON l.Vykladach = t.NomVykl";
+            try (Connection conn = DriverManager.getConnection(dbURL)) {
 
-            try (Connection conn = DriverManager.getConnection(dbURL);
-                 Statement stmt = conn.createStatement();
-                 ResultSet rs = stmt.executeQuery(sql)) {
+                Map<String, Integer> groupWeeksMap = loadGroupWeeksMap(conn, semester);
 
-                while (rs.next()) {
-                    int semesterHours = rs.getInt("ActiveHours");
+                /*  Here are the editable fields from the Access database:*/
+                String sql = "SELECT " +
+                        "g.KodGr AS GroupName, " +
+                        "s.NazvaDysc AS SubjectName, " +
+                        "t.Prizv AS TeacherName, " +
+                        "l." + rightSemHoursColumn + " AS ActiveHours " +
+                        "FROM РозподілГодин l " +
+                        "JOIN Групи g ON l.Grupa = g.NomGr " +
+                        "JOIN Дисципліни s ON l.Dysc = s.NomDysc " +
+                        "JOIN Викладачі t ON l.Vykladach = t.NomVykl";
 
-                    if (rs.wasNull() || semesterHours <= 0) {
-                        continue;
+                try (Statement stmt = conn.createStatement();
+                     ResultSet rs = stmt.executeQuery(sql)) {
+
+                    while (rs.next()) {
+                        int semesterHours = rs.getInt("ActiveHours");
+
+                        if (rs.wasNull() || semesterHours <= 0) {
+                            continue;
+                        }
+
+                        String groupName = rs.getString("GroupName").trim();
+                        String subjectName = rs.getString("SubjectName").trim();
+                        String teacherName = rs.getString("TeacherName").trim();
+
+                        // Look up the specific number of weeks for this group
+                        int groupWeeks = groupWeeksMap.getOrDefault(groupName, DEFAULT_WEEKS_FALLBACK);
+                        double pairsPerWeek = (double) semesterHours / (groupWeeks * 2);
+
+                        //saving
+                        Group group = groupRepository.findByGroupName(groupName)
+                                .orElseGet(() -> {
+                                    Group g = new Group();
+                                    g.setGroupName(groupName);
+                                    return groupRepository.save(g);
+                                });
+
+                        Subject subject = subjectRepository.findBySubjectName(subjectName)
+                                .orElseGet(() -> {
+                                    Subject s = new Subject();
+                                    s.setSubjectName(subjectName);
+                                    return subjectRepository.save(s);
+                                });
+
+                        Teacher teacher = teacherRepository.findByLastName(teacherName)
+                                .orElseGet(() -> {
+                                    Teacher t = new Teacher();
+                                    t.setLastName(teacherName);
+                                    return teacherRepository.save(t);
+                                });
+
+                        if (!teacher.getSubjects().contains(subject)) {
+                            teacher.getSubjects().add(subject);
+                            teacherRepository.save(teacher);
+                        }
+
+                        TeachingLoad load = new TeachingLoad();
+                        load.setGroup(group);
+                        load.setSubject(subject);
+                        load.setTeacher(teacher);
+                        load.setLessonsPerWeek(pairsPerWeek);
+                        teachingLoadRepository.save(load);
+
+                        rowsAdded++;
                     }
-                    double pairsPerWeek = (double) semesterHours / (semesterWeeks * 2);
-
-                    String groupName = rs.getString("GroupName").trim();
-                    String subjectName = rs.getString("SubjectName").trim();
-                    String teacherName = rs.getString("TeacherName").trim();
-
-                    //saving
-                    Group group = groupRepository.findByGroupName(groupName)
-                            .orElseGet(() -> {
-                                Group g = new Group();
-                                g.setGroupName(groupName);
-                                return groupRepository.save(g);
-                            });
-
-                    Subject subject = subjectRepository.findBySubjectName(subjectName)
-                            .orElseGet(() -> {
-                                Subject s = new Subject();
-                                s.setSubjectName(subjectName);
-                                return subjectRepository.save(s);
-                            });
-
-                    Teacher teacher = teacherRepository.findByLastName(teacherName)
-                            .orElseGet(() -> {
-                                Teacher t = new Teacher();
-                                t.setLastName(teacherName);
-                                return teacherRepository.save(t);
-                            });
-
-                    if (!teacher.getSubjects().contains(subject)) {
-                        teacher.getSubjects().add(subject);
-                        teacherRepository.save(teacher);
-                    }
-
-                    TeachingLoad load = new TeachingLoad();
-                    load.setGroup(group);
-                    load.setSubject(subject);
-                    load.setTeacher(teacher);
-                    load.setLessonsPerWeek(pairsPerWeek);
-                    teachingLoadRepository.save(load);
-
-                    rowsAdded++;
                 }
             }
-            return "Successful rows added: " + rowsAdded + "for subjects in semester" + semester;
+            return "Successful rows added: " + rowsAdded + " for subjects in semester " + semester;
         } catch (Exception e) {
             throw new RuntimeException("Exception while reading Access: "+ e.getMessage());
         } finally {
@@ -110,4 +120,32 @@ public class AccessService {
             }
         }
     }
+
+
+     // Also changeable fields from accdb
+
+    private Map<String, Integer> loadGroupWeeksMap(Connection conn, int semester) {
+        Map<String, Integer> groupWeeksMap = new HashMap<>();
+        String weeksColumn = (semester == 1) ? "[Sem1_Weeks]" : "[Sem2_Weeks]";
+        String sql = "SELECT [Group_Name], " + weeksColumn + " AS Weeks FROM [Group_Weeks]";
+
+        try (Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(sql)) {
+
+            while (rs.next()) {
+                String groupName = rs.getString("Group_Name");
+                int weeks = rs.getInt("Weeks");
+
+                if (groupName != null && !rs.wasNull() && weeks > 0) {
+                    groupWeeksMap.put(groupName.trim(), weeks);
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("WARNING: Could not read [Group_Weeks] table: " + e.getMessage());
+            System.err.println("Falling back to default " + DEFAULT_WEEKS_FALLBACK + " weeks for all groups.");
+        }
+
+        return groupWeeksMap;
+    }
 }
+
