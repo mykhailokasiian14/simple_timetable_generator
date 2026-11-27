@@ -126,14 +126,14 @@ public class AccessService {
 
     private Map<String, Integer> loadGroupWeeksMap(Connection conn, int semester) {
         Map<String, Integer> groupWeeksMap = new HashMap<>();
-        String weeksColumn = (semester == 1) ? "[Sem1_Weeks]" : "[Sem2_Weeks]";
-        String sql = "SELECT [Group_Name], " + weeksColumn + " AS Weeks FROM [Group_Weeks]";
+        String weeksColumn = (semester == 1) ? "[1 семестр]" : "[2 семестр]";
+        String sql = "SELECT [Група], " + weeksColumn + " AS Weeks FROM [Лист1]";
 
         try (Statement stmt = conn.createStatement();
              ResultSet rs = stmt.executeQuery(sql)) {
 
             while (rs.next()) {
-                String groupName = rs.getString("Group_Name");
+                String groupName = rs.getString("Група");
                 int weeks = rs.getInt("Weeks");
 
                 if (groupName != null && !rs.wasNull() && weeks > 0) {

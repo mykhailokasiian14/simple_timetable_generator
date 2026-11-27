@@ -29,6 +29,7 @@
 	<properties>
 		<java.version>21</java.version>
 		<node.version>v20.11.0</node.version>
+		<hsqldb.version>2.5.1</hsqldb.version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -75,6 +76,13 @@
 			<groupId>ai.timefold.solver</groupId>
 			<artifactId>timefold-solver-spring-boot-starter</artifactId>
 			<version>1.10.0</version>
+		</dependency>
+
+		<dependency>
+			<groupId>ai.timefold.solver</groupId>
+			<artifactId>timefold-solver-test</artifactId>
+			<version>1.10.0</version>
+			<scope>test</scope>
 		</dependency>
 
 		<dependency>

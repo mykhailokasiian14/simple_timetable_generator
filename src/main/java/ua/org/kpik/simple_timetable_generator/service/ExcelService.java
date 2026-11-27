@@ -254,6 +254,13 @@ public class ExcelService {
                             String text = formatLessonText(everyWeek);
                             cellTop.setCellValue(text);
                             sheet.addMergedRegion(new CellRangeAddress(lessonStartRow, lessonStartRow + 1, colIdx, colIdx));
+                        } else if (numerator != null && denominator != null
+                                && Objects.equals(numerator.getSubject(), denominator.getSubject())
+                                && Objects.equals(numerator.getTeacher(), denominator.getTeacher())
+                                && Objects.equals(numerator.getAuditory(), denominator.getAuditory())) {
+                            String text = formatLessonText(numerator);
+                            cellTop.setCellValue(text);
+                            sheet.addMergedRegion(new CellRangeAddress(lessonStartRow, lessonStartRow + 1, colIdx, colIdx));
                         } else {
                             if (numerator != null) {
                                 cellTop.setCellValue(formatLessonText(numerator));

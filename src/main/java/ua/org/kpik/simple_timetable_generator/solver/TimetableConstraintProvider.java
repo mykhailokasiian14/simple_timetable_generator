@@ -7,6 +7,7 @@ import ai.timefold.solver.core.api.score.stream.ConstraintProvider;
 import ai.timefold.solver.core.api.score.stream.Joiners;
 import ua.org.kpik.simple_timetable_generator.enaum.LessonWeekType;
 import ua.org.kpik.simple_timetable_generator.entity.Lesson;
+import java.util.Objects;
 
 public class TimetableConstraintProvider implements ConstraintProvider {
     @Override
@@ -21,10 +22,11 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 teacherRoomSharingPenalty(constraintFactory),
                 noGapsBetweenLessons(constraintFactory),
                 shortFridaysAndWednesdays(constraintFactory),
+                sameSubjectTeacherAuditoryConflict(constraintFactory),
         };
     }
 
-    private Constraint teacherConflict(ConstraintFactory constraintFactory) {
+    Constraint teacherConflict(ConstraintFactory constraintFactory) {
         return constraintFactory
                 .forEachUniquePair(Lesson.class,
                         Joiners.equal(Lesson::getTeacher),
@@ -158,5 +160,21 @@ public class TimetableConstraintProvider implements ConstraintProvider {
                 .filter(lesson -> lesson.getLessonNumber() > 3)
                 .penalize(HardSoftScore.ONE_SOFT)
                 .asConstraint("max 3 lessons on friday and wednesday!");
+    }
+
+    Constraint sameSubjectTeacherAuditoryConflict(ConstraintFactory constraintFactory) {
+        return constraintFactory
+                .forEachUniquePair(Lesson.class,
+                        Joiners.equal(Lesson::getGroup),
+                        Joiners.equal(Lesson::getSubject),
+                        Joiners.equal(Lesson::getTeacher))
+                .filter((lesson1, lesson2) ->
+                        Objects.equals(lesson1.getDayOfWeek(), lesson2.getDayOfWeek())
+                                && Objects.equals(lesson1.getLessonNumber(), lesson2.getLessonNumber())
+                                && lesson1.getAuditory() != null
+                                && lesson2.getAuditory() != null
+                                && !Objects.equals(lesson1.getAuditory(), lesson2.getAuditory()))
+                .penalize(HardSoftScore.ONE_HARD)
+                .asConstraint("Same subject and teacher auditory conflict!");
     }
 }

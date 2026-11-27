@@ -75,7 +75,7 @@ class AccessServiceTest {
             when(rs.next()).thenReturn(false);
         } else if (rows.length == 1) {
             when(rs.next()).thenReturn(true, false);
-            when(rs.getString("Group_Name")).thenReturn(rows[0][0]);
+            when(rs.getString("Група")).thenReturn(rows[0][0]);
             when(rs.getInt("Weeks")).thenReturn(Integer.parseInt(rows[0][1]));
             when(rs.wasNull()).thenReturn(false);
         } else {
@@ -93,7 +93,7 @@ class AccessServiceTest {
                 weeks[i] = Integer.parseInt(rows[i][1]);
                 nulls[i] = false;
             }
-            when(rs.getString("Group_Name")).thenReturn(names[0],
+            when(rs.getString("Група")).thenReturn(names[0],
                     java.util.Arrays.copyOfRange(names, 1, names.length));
             when(rs.getInt("Weeks")).thenReturn(weeks[0],
                     java.util.Arrays.copyOfRange(weeks, 1, weeks.length));
